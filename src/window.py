@@ -1,20 +1,21 @@
 import pyglet
 import pyglet.math as pmath
+from typing import Callable
 
 
 class PygletOverride:
     def __init__(
         self,
         windowName: str = "Pyglet Window",
-        windowSize: pmath.Vec2 = pmath.Vec2(500, 500),
-        keyboardInputHandler: callable = None,
-        drawHandler: callable = None,
+        windowSize: pmath.Vec2 = pmath.Vec2(800, 600),
+        keyboardInputHandler: Callable = None,
+        drawHandler: Callable = None,
     ):
-        self.windowName: str = windowName
-        self.windowSize: pmath.Vec2 = windowSize
-        self.windowHandle: pyglet.window.Window = None
-        self.keyboardInputHandler: callable = keyboardInputHandler
-        self.drawHandler: callable = drawHandler
+        self._windowName: str = windowName
+        self._windowSize: pmath.Vec2 = windowSize
+        self._windowHandle: pyglet.window.Window = None
+        self._keyboardInputHandler: Callable = keyboardInputHandler
+        self._drawHandler: Callable = drawHandler
 
     @property
     def windowName(self) -> str:
@@ -40,6 +41,22 @@ class PygletOverride:
     def windowHandle(self, value: pyglet.window.Window):
         self._windowHandle = value
 
+    @property
+    def keyboardInputHandler(self) -> Callable:
+        return self._keyboardInputHandler
+
+    @keyboardInputHandler.setter
+    def keyboardInputHandler(self, value: Callable):
+        self._keyboardInputHandler = value
+
+    @property
+    def drawHandler(self) -> Callable:
+        return self._drawHandler
+
+    @drawHandler.setter
+    def drawHandler(self, value: Callable):
+        self._drawHandler = value
+
     def createWindow(self) -> bool:
         self.windowHandle = pyglet.window.Window(
             width=self.windowSize.x,
@@ -54,19 +71,23 @@ class PygletOverride:
     def handleKeyboard(self, key, modifiers):
         if key == pyglet.window.key.ESCAPE:
             self.windowHandle.close()
-        if self.keyboardInputHandler is not None:
-            self.keyboardInputHandler(key, modifiers)
+        if self._keyboardInputHandler is not None:
+            self._keyboardInputHandler(key, modifiers)
 
     def on_draw(self):
-        window.clear()
-        if self.drawHandler is not None:
-            self.drawHandler()
+        self.windowHandle.clear()
+        if self._drawHandler is not None:
+            self._drawHandler()
 
     def run(self):
+        self.startUp()
+
+        @self.windowHandle.event
+        def on_draw():
+            self.on_draw()
+
+        @self.windowHandle.event
+        def on_key_press(key, modifiers):
+            self.handleKeyboard(key, modifiers)
+
         pyglet.app.run()
-
-
-testWindow = PygletOverride()
-
-testWindow.startUp()
-testWindow.run()

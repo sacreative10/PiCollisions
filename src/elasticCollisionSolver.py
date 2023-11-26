@@ -1,10 +1,12 @@
 import dataclasses
+from pyglet.math import Vec2
 
 
 @dataclasses.dataclass
 class Object:
     mass: int
     velocity: float
+    position: Vec2
 
 
 def elastic_collision_solver(obj1: Object, obj2: Object) -> tuple[float, float]:
