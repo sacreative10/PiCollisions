@@ -79,7 +79,7 @@ class PygletOverride:
         if self._drawHandler is not None:
             self._drawHandler()
 
-    def run(self):
+    def run(self, frameTime: float = 1 / 144):
         self.startUp()
 
         @self.windowHandle.event
@@ -90,4 +90,4 @@ class PygletOverride:
         def on_key_press(key, modifiers):
             self.handleKeyboard(key, modifiers)
 
-        pyglet.app.run()
+        pyglet.app.run(frameTime)

@@ -4,8 +4,12 @@ from math import log
 
 
 def mass_factor(mass):
-    print(mass)
     return abs(log(mass + 10))
+
+
+def updateObject(dt: float, obj: Object):
+    delta_x = obj.velocity * dt
+    obj.position.x += delta_x
 
 
 def draw_object(obj: Object, colour: tuple):
