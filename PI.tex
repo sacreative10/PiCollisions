@@ -1,0 +1,511 @@
+% This file was converted to LaTeX by Writer2LaTeX ver. 1.9.9
+% see http://writer2latex.sourceforge.net for more info
+\documentclass{article}
+\usepackage{calc,amsmath,amssymb,amsfonts}
+\usepackage[LGR,T1]{fontenc}
+\usepackage[greek,english]{babel}
+\usepackage[style=numeric,backend=biber]{biblatex}
+\usepackage{array,supertabular,hhline}
+\usepackage[pdftex]{graphicx}
+\setlength\tabcolsep{1mm}
+\renewcommand\arraystretch{1.3}
+\date{2023-11-26}
+\begin{document}
+
+\bigskip
+
+
+\bigskip
+
+\title{PI from collisions}
+\maketitle
+
+
+\bigskip
+
+\section{Motivation}
+This project was motivated by the idea of creating a simulation that approximates PI (for certain definitions of
+reasonable), and this specfic project arises from a interesting problem postulated by a maths youtuber named 3b1b.
+
+
+\bigskip
+
+The premise behind this simulation is as follows. Imagine two blocks, A and B, where the ratio between their masses,
+denoted mA and mB, be 100N (mB / mA). Push the latter block towards the other, assuming a frictionless elastic world,
+where of A$\text{\textgreek{’}}$s left hand side there is a wall perpendicular to the ground. From this, the number of
+collisions within this system must be N digits of $\pi $.
+
+
+\bigskip
+
+I won$\text{\textgreek{’}}$t delve deep into why this occurs, but rather focus on how to make it occur (so to speak). In
+order to learn more, please read the original paper, and said video.
+
+
+\bigskip
+
+I will be using Python, as well the excellent Manim community edition. I use the former due to its simplicity, and the
+latter because it might be the only decent “graphics” library available in Python. Fun fact: The original author of the
+Manim library was also the person who made the video!
+
+
+\bigskip
+
+Ideally, I would like this project to be simple, yet elegant. I do not wish for this program to be a giant monad of
+sorts. What I mean is that, I don$\text{\textgreek{’}}$t what this program to be a “machine” with many distinct moving
+parts. Yes, there will obviously be seperate classes, functions, but I want them to be self-contained, rather than a
+“spagetti” of sorts.
+
+ \includegraphics[width=12.7cm,height=9.208cm]{PI-img001.png} 
+
+
+\bigskip
+
+\section{Module 1: Rendering An Screen}
+
+\bigskip
+
+
+\bigskip
+
+\subsection{Test plan}
+Now ideally we want the window to remain open until closed, as well as for it to exit when escape it pressed. For a
+basic window, that is all we want.
+
+\begin{center}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{m{1.091cm}m{5.307cm}m{4.598cm}m{2.504cm}m{2.501cm}}
+TC(n) &
+Test data &
+Expected Output &
+Evidence &
+Passed?\\
+1 &
+Start window &
+Should remain open &
+~
+ &
+~
+
+~
+\\
+2 &
+Start window, press escape &
+Should close &
+~
+ &
+~
+\\
+\end{supertabular}
+\end{center}
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+\subsection{Development}
+
+\bigskip
+
+We would like a window (preferably an openGL instance) of a window. Fortunatley, Manim has a feature that allows us to
+render to a window (rather than to a video, as default):
+
+
+
+\begin{figure}
+\includegraphics[width=17cm,height=3.799cm]{PI-img002.png}\end{figure}
+Where we create a sample scene class, and “play” anything that needs to be moved, animating a video, that is then played
+on top of the opengl window.
+
+
+\bigskip
+
+However all test cases for this module fail. The reason being manim is not event-driven, rather (as explained), it
+simply plays a video*. Therefore it is not possible for us to do anything related to events and capturing said events.
+Maybe we could run the video on a loop constantly (like in a seperate pygame window), however, as discussed before,
+that would mean breaking the simplicity rule, as this would be a crummy solution to a dead simple problem. Therefore, I
+elected to use PyGlet, a Pythonic graphics library.
+
+
+\bigskip
+
+Pyglet is built in a similar vein to PyGame, however, I chose the former over the latter, due to the
+former$\text{\textgreek{’}}$s better control for deltatime, something which will prove useful in later modules.
+
+
+\bigskip
+
+Since Pyglet (along with most of python$\text{\textgreek{’}}$s libraries) are purely imperative, I will create a window
+class, in order for ease of use, as well as clean code. Also, Pyglet$\text{\textgreek{’}}$s documentation recommend
+subclassing the window.
+
+\begin{figure}
+\includegraphics[width=12.199cm,height=12.1cm]{PI-img003.jpg}\end{figure}
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+Firstly, we have the initializer. As you can see, I have added the ability for the client programmer (me), to expand the
+input handling, as well as expanding the drawing, since I feel like that is a good way to abstract Pyglet out of the
+equation in order to progress to the more math-heavy code later on.
+
+
+
+\begin{figure}
+\includegraphics[width=13.653cm,height=2.752cm]{PI-img004.png}\end{figure}
+
+\bigskip
+
+
+
+\begin{figure}
+\includegraphics[width=17cm,height=6.101cm]{PI-img005.png}\end{figure}
+And this is how we (for example), allow the client to expand their keyboard handling, and of course we have included the
+criteria for the window to close when escape is pressed as part of our test plan.
+
+
+
+\begin{figure}
+\includegraphics[width=17cm,height=3.201cm]{PI-img006.png}\end{figure}
+This is how we create a window. Note that we also have checks to see if Pyglet failed with its initialisation.
+
+
+\bigskip
+
+\subsection{Module 1 Testing}
+For the test code, I have written only 3 lines, one to initialise the class, one to initialise the window, and one to
+start pyglet proper.
+
+
+
+\begin{figure}
+\includegraphics[width=8.864cm,height=1.693cm]{PI-img007.png}\end{figure}
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+\begin{center}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{m{1.0879999cm}m{5.303cm}m{4.5940003cm}m{3.1cm}m{1.915cm}}
+TC(n) &
+Test data &
+Expected Output &
+Evidence &
+Passed?\\
+1 &
+Start window &
+Should remain open, until closed &
+~
+ &
+~
+
+~
+\\
+2 &
+Start window, press escape &
+Should close &
+~
+ &
+~
+\\
+\end{supertabular}
+\end{center}
+
+\bigskip
+
+
+\bigskip
+
+Note: evidence needs adding
+
+
+\bigskip
+
+
+\bigskip
+
+\section{Module 2: Conserving Momentum}
+Now, we enter the fun part of the project, by conserving momentum. We need to do so, in order to satisfy the first
+premise of our problem.
+
+\ 
+
+\begin{figure}
+\includegraphics[width=11.642cm,height=3.519cm]{PI-img008.png}\end{figure}
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+These equations are used in an elastic environment, where both kinetic energy and momentum are equal before and after
+any collision. Vi describes the final velocity (after a collision) of the ith particle, mi the same for mass, and ui
+for initial velocity.
+
+In foresight, it might be prudent for us to represent the current velocities and masses of our particles in some sort of
+structure, in order to make legibility and further expansion easier.
+
+
+
+\begin{figure}
+\includegraphics[width=15.505cm,height=15.452cm]{PI-img009.png}\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=17cm,height=9.197cm]{PI-img010.png}\end{figure}
+
+\bigskip
+
+Therefore, our test plan is as follows:
+
+\begin{flushleft}
+\tablefirsthead{\ TC(n)  &
+\ Test name \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+\ Test data \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+Expected Output\\}
+\tablehead{\ TC(n)  &
+\ Test name \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+\ Test data \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+Expected Output\\}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{m{0.83cm}m{7.039cm}m{4.4430003cm}m{0.8880001cm}}
+\ 3 \ \ \  &
+\ test\_collision\_with\_equal\_mass \ \ \ \ \ \ \ \ \ \ \  &
+\ Object(1, 2), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(-3, 2)\\
+\ 4 \ \ \  &
+\ test\_collision\_with\_different\_mass \ \ \ \ \ \ \  &
+\ Object(2, 4), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(0.5, 3.5)\\
+\ 5 \ \ \ \  &
+\ test\_collision\_with\_one\_stationary\_object  &
+\ Object(2, 0), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(-3, 0)\\
+\ 6 \ \ \ \  &
+\ test\_collision\_with\_opposite\_directions \ \  &
+\ Object(1, 2), Object(1, 3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(3, 2)\\
+\ 7 \ \ \ \  &
+\ test\_collision\_with\_same\_directions \ \ \ \ \ \  &
+\ Object(1, 2), Object(1, 2) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(2, 2)\\
+\ 8 \ \ \ \  &
+\ test\_collision\_with\_large\_mass\_difference  &
+\ Object(100, 5), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(-3, 5)\\
+\ 9 \ \ \ \  &
+\ test\_collision\_with\_zero\_velocity \ \ \ \ \ \ \ \  &
+\ Object(2, 0), Object(1, 0) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(0, 0)\\
+\end{supertabular}
+\end{flushleft}
+\subsection{Module 2: Development}
+
+\bigskip
+
+I decided to program the Object as a data structure rather than a class, since I felt that since this object is really
+here to store data, there isn$\text{\textgreek{’}}$t an advantage of creating a class with a constructor, as this is
+only here to store data in an organised container. If this object had more than getters and setters as its method, a
+class would have been beneficial. Using a data structure not only is faster, but is also more legible.
+
+\ 
+
+\begin{figure}
+\includegraphics[width=6.509cm,height=2.831cm]{PI-img011.png}\end{figure}
+Note that we only use one dimensional vectors, as our boxes will only exist upon a line, and won$\text{\textgreek{’}}$t
+be flying. If we needed the y component, we could use sin(velocity) to yield our y component.
+
+
+\bigskip
+
+
+\bigskip
+
+\ 
+
+\begin{figure}
+\includegraphics[width=17cm,height=5.274cm]{PI-img012.png}\end{figure}
+Then we have the solver following the equation above. Note that we \ use type hinting of a tuple in order to return both
+velocities.
+
+
+\bigskip
+
+\subsection{Module 2: Testing}
+I used unittests for this module, as firstly, they provide comprehensive tools for testing in a orderly manner.
+Secondly, we are testing a (mathematical) function, which requires more thorough testing.
+
+Writing the test was rather difficult with python$\text{\textgreek{’}}$s module structure, therefore I ended up with
+this structure (ignore pycache):
+
+where we need \_\_init\_\_.py in each subfolder to indicate its module status. Very annoying initially, and will remain
+annoying.
+
+\begin{figure}
+\includegraphics[width=17cm,height=7.756cm]{PI-img013.png}\end{figure}
+
+\bigskip
+
+\begin{flushleft}
+\tablefirsthead{\ TC(n)  &
+\ Test name \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+\ Test data \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+Expected Output &
+P?\\}
+\tablehead{\ TC(n)  &
+\ Test name \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+\ Test data \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+Expected Output &
+P?\\}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{m{1.186cm}m{7.5950003cm}m{5.727cm}m{3.504cm}m{0.742cm}}
+\ 3 \ \ \  &
+\ test\_collision\_with\_equal\_mass \ \ \ \ \ \ \ \ \ \ \  &
+\ Object(1, 2), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(-3, 2) &
+~
+\\
+\ 4 \ \ \  &
+\ test\_collision\_with\_different\_mass \ \ \ \ \ \ \  &
+\ Object(2, 4), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(0.5, 3.5) &
+~
+\\
+\ 5 \ \ \ \  &
+\ test\_collision\_with\_one\_stationary\_object  &
+\ Object(2, 0), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(-3, 0) &
+~
+\\
+\ 6 \ \ \ \  &
+\ test\_collision\_with\_opposite\_directions \ \  &
+\ Object(1, 2), Object(1, 3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(3, 2) &
+~
+\\
+\ 7 \ \ \ \  &
+\ test\_collision\_with\_same\_directions \ \ \ \ \ \  &
+\ Object(1, 2), Object(1, 2) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(2, 2) &
+~
+\\
+\ 8 \ \ \ \  &
+\ test\_collision\_with\_large\_mass\_difference  &
+\ Object(100, 5), Object(1, -3) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(-3, 5) &
+~
+\\
+\ 9 \ \ \ \  &
+\ test\_collision\_with\_zero\_velocity \ \ \ \ \ \ \ \  &
+\ Object(2, 0), Object(1, 0) \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  &
+(0, 0) &
+~
+\\
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+
+\bigskip
+
+The evidence is in the appendix :)
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+\section{Module 3: Drawing some boxes}
+
+\bigskip
+
+Now that we have the underlying architecture in place, we can actually get to drawing boxes, and finish the project.
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+
+\bigskip
+
+\section{Appendix}
+
+\bigskip
+
+TC 3-7:
+
+
+\begin{figure}
+\includegraphics[width=17cm,height=9.236cm]{PI-img014.png}\end{figure}
+\end{document}
