@@ -20,3 +20,14 @@ def draw_object(obj: Object, colour: tuple):
         10 * mass_factor(obj.mass),
         colour,
     ).draw()
+
+
+def collisionDetection(obj1: Object, obj2: Object) -> bool:
+    if obj1.position.x < obj2.position.x:
+        raise Exception
+    W1 = 10 * mass_factor(obj1.mass)
+
+    if obj2.position.x >= obj1.position.x + W1:
+        return True
+
+    return False
