@@ -23,11 +23,13 @@ def draw_object(obj: Object, colour: tuple):
 
 
 def collisionDetection(obj1: Object, obj2: Object) -> bool:
-    if obj1.position.x < obj2.position.x:
-        raise Exception
+    if obj1.position.x > obj2.position.x:
+        raise ValueError("obj1 must be to the left of obj2")
     W1 = 10 * mass_factor(obj1.mass)
 
-    if obj2.position.x >= obj1.position.x + W1:
+    if (obj2.position.x <= obj1.position.x + W1) or (
+        obj2.position.x <= obj1.position.x + W1
+    ):
         return True
 
     return False

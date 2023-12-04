@@ -79,7 +79,7 @@ class PygletOverride:
         if self._drawHandler is not None:
             self._drawHandler()
 
-    def run(self, frameTime: float = 1 / 144):
+    def run(self, frameTime: float = 1 / 60):
         self.startUp()
 
         @self.windowHandle.event

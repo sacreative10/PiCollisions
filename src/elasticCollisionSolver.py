@@ -14,12 +14,11 @@ def elastic_collision_solver(obj1: Object, obj2: Object) -> tuple[float, float]:
     This function takes two objects and returns their velocities after an elastic collision.
     """
 
-    v1 = ((obj1.mass - obj2.mass) / (obj1.mass + obj2.mass)) * obj1.velocity + (
+    newv1 = ((obj1.mass - obj2.mass) / (obj1.mass + obj2.mass)) * obj1.velocity + (
         (2 * obj2.mass) / (obj1.mass + obj2.mass)
     ) * obj2.velocity
+    newv2 = ((2 * obj1.mass) / (obj1.mass + obj2.mass)) * obj1.velocity + (
+        (obj2.mass - obj1.mass) / (obj1.mass + obj2.mass)
+    ) * obj2.velocity
 
-    v2 = ((obj2.mass - obj1.mass) / (obj1.mass + obj2.mass)) * obj2.velocity + (
-        (2 * obj1.mass) / (obj1.mass + obj2.mass)
-    ) * obj1.velocity
-
-    return v1, v2
+    return newv1, newv2
