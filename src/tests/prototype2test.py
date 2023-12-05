@@ -67,6 +67,7 @@ def computation():
     obj1.position.x = pos1
     obj2.position.x = pos2
     obj1.velocity = vel1
+    obj2.velocity = vel2
     return collisionCount
 
 
