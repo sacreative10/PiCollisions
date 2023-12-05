@@ -7,6 +7,7 @@ class Object:
     mass: int
     velocity: float
     position: Vec2
+    width: int = 10
 
 
 def elastic_collision_solver(obj1: Object, obj2: Object) -> tuple[float, float]:
