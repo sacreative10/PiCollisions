@@ -18,25 +18,27 @@ public:
       : mass(m), velocity(v), position(pos), width(w) {}
 };
 
-std::pair<double, double> elasticCollisionSolver(Object obj1, Object obj2) {
-  double newv1 =
-      ((double)(obj1.mass - obj2.mass) / (double)(obj1.mass + obj2.mass)) *
-          obj1.velocity +
-      ((double)2 * obj2.mass / (double)(obj1.mass + obj2.mass)) *
-          (double)obj2.velocity;
-  double newv2 =
-      ((double)2 * obj1.mass / (double)(obj1.mass + obj2.mass)) *
-          (double)obj1.velocity +
-      ((double)(obj2.mass - obj1.mass) / (double)(obj1.mass + obj2.mass)) *
-          (double)obj2.velocity;
+std::pair<double, double> elasticCollisionSolver(int mass1, double vel1,
+                                                 int mass2, double vel2) {
 
-  return std::make_pair(newv1, newv2);
+  double double_mass1 = static_cast<double>(mass1);
+  double double_mass2 = static_cast<double>(mass2);
+
+  // Elastic collision formula
+  double final_vel1 =
+      ((double_mass1 - double_mass2) / (double_mass1 + double_mass2)) * vel1 +
+      ((2 * double_mass2) / (double_mass1 + double_mass2)) * vel2;
+  double final_vel2 =
+      ((2 * double_mass1) / (double_mass1 + double_mass2)) * vel1 +
+      ((double_mass2 - double_mass1) / (double_mass1 + double_mass2)) * vel2;
+
+  return std::make_pair(final_vel1, final_vel2);
 }
 
 uint32_t computation(Object &obj1, Object &obj2, uint32_t timestep) {
   uint32_t collisionCount = 0;
-  Vec2 pos1 = obj1.position;
-  Vec2 pos2 = obj2.position;
+  double pos1 = obj1.position.x;
+  double pos2 = obj2.position.x;
   double vel1 = obj1.velocity;
   double vel2 = obj2.velocity;
   uint32_t width1 = obj1.width;
@@ -45,32 +47,32 @@ uint32_t computation(Object &obj1, Object &obj2, uint32_t timestep) {
   uint32_t mass2 = obj2.mass;
 
   for (uint32_t i = 0; i < timestep; i++) {
-    if (pos1.x + width1 >= pos2.x) {
+    if (pos1 + width1 >= pos2) {
       collisionCount += 1;
-      auto result = elasticCollisionSolver(Object(mass1, vel1, Vec2(pos1)),
-                                           Object(mass2, vel2, Vec2(pos2)));
+      std::pair<double, double> result =
+          elasticCollisionSolver(mass1, vel1, mass2, vel2);
       vel1 = result.first;
       vel2 = result.second;
-    } else if (pos1.x <= 0) {
+    } else if (pos1 <= 0) {
       collisionCount += 1;
-      vel1 = -vel1;
+      vel1 *= -1;
     }
 
     // update positions uing local variables
-    pos1.x += vel1;
-    pos2.x += vel2;
+    pos1 += vel1;
+    pos2 += vel2;
   }
 
   // update the objects
-  obj1.position = pos1;
-  obj2.position = pos2;
+  obj1.position.x = pos1;
+  obj2.position.x = pos2;
   obj1.velocity = vel1;
   obj2.velocity = vel2;
 
   std::cout << std::fixed;
   std::cout << collisionCount << std::endl;
-  std::cout << pos1.x << std::endl;
-  std::cout << pos2.x << std::endl;
+  std::cout << pos1 << std::endl;
+  std::cout << pos2 << std::endl;
   // print the velocity in full precision
   std::cout << vel1 << std::endl;
   std::cout << vel2 << std::endl;
