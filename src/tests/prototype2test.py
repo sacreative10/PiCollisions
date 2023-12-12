@@ -116,7 +116,7 @@ def customDraw():
 
     # split the output using \n
     stdout = result.stdout.split("\n")
-    collisionCount = int(stdout[0])
+    collisionCount += int(stdout[0])
     obj1.position.x = float(stdout[1])
     obj2.position.x = float(stdout[2])
     obj1.velocity = float(stdout[3])
