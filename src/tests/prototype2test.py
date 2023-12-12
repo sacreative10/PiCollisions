@@ -1,6 +1,7 @@
 from window import PygletOverride
 from pyglet.math import Vec2
 from elasticCollisionSolver import Object, elastic_collision_solver
+import subprocess
 from utility import (
     mass_factor,
     collisionDetection,
@@ -78,7 +79,28 @@ def customDraw():
     global collisionCount
     # check for collisions and update velocities
     start = perf_counter()
-    collisionCount += computation()
+    result = subprocess.run(
+        [
+            f"./a.out",
+            str(timestep),
+            str(obj1.mass),
+            str(obj2.mass),
+            str(obj1.position.x),
+            str(obj1.position.y),
+            str(obj2.position.x),
+            str(obj2.position.y),
+            str(obj1.width),
+            str(obj2.width),
+            str(format(obj1.velocity, ".8f")),
+            str(format(obj2.velocity, ".8f")),
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    print(result.stderr)
+
+    collisionCount += int(result.stdout)
     end = perf_counter()
     print(f"Time taken: {end - start} seconds")
 
