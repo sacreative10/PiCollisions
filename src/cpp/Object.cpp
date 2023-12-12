@@ -1,34 +1,37 @@
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 
 class Vec2 {
 public:
-  double x, y;
+  long double x, y;
 };
 
 class Object {
 public:
   uint32_t mass;
-  double velocity;
+  long double velocity;
   Vec2 position;
   uint32_t width;
 
-  Object(uint32_t m, double v, Vec2 pos, uint32_t w = 10)
+  Object(uint32_t m, long double v, Vec2 pos, uint32_t w)
       : mass(m), velocity(v), position(pos), width(w) {}
 };
 
-std::pair<double, double> elasticCollisionSolver(int mass1, double vel1,
-                                                 int mass2, double vel2) {
+std::pair<long double, long double> elasticCollisionSolver(uint32_t mass1,
+                                                           long double vel1,
+                                                           uint32_t mass2,
+                                                           long double vel2) {
 
-  double double_mass1 = static_cast<double>(mass1);
-  double double_mass2 = static_cast<double>(mass2);
+  long double double_mass1 = static_cast<long double>(mass1);
+  long double double_mass2 = static_cast<long double>(mass2);
 
   // Elastic collision formula
-  double final_vel1 =
+  long double final_vel1 =
       ((double_mass1 - double_mass2) / (double_mass1 + double_mass2)) * vel1 +
       ((2 * double_mass2) / (double_mass1 + double_mass2)) * vel2;
-  double final_vel2 =
+  long double final_vel2 =
       ((2 * double_mass1) / (double_mass1 + double_mass2)) * vel1 +
       ((double_mass2 - double_mass1) / (double_mass1 + double_mass2)) * vel2;
 
@@ -37,10 +40,10 @@ std::pair<double, double> elasticCollisionSolver(int mass1, double vel1,
 
 uint32_t computation(Object &obj1, Object &obj2, uint32_t timestep) {
   uint32_t collisionCount = 0;
-  double pos1 = obj1.position.x;
-  double pos2 = obj2.position.x;
-  double vel1 = obj1.velocity;
-  double vel2 = obj2.velocity;
+  long double pos1 = obj1.position.x;
+  long double pos2 = obj2.position.x;
+  long double vel1 = obj1.velocity;
+  long double vel2 = obj2.velocity;
   uint32_t width1 = obj1.width;
   uint32_t width2 = obj2.width;
   uint32_t mass1 = obj1.mass;
@@ -49,11 +52,12 @@ uint32_t computation(Object &obj1, Object &obj2, uint32_t timestep) {
   for (uint32_t i = 0; i < timestep; i++) {
     if (pos1 + width1 >= pos2) {
       collisionCount += 1;
-      std::pair<double, double> result =
+      std::pair<long double, long double> result =
           elasticCollisionSolver(mass1, vel1, mass2, vel2);
       vel1 = result.first;
       vel2 = result.second;
-    } else if (pos1 <= 0) {
+    }
+    if (pos1 <= 0) {
       collisionCount += 1;
       vel1 *= -1;
     }
@@ -92,14 +96,14 @@ int main(int argc, char *argv[]) {
   uint32_t timestep = std::stol(argv[1]);
   uint32_t mass1 = std::stol(argv[2]);
   uint32_t mass2 = std::stol(argv[3]);
-  double pos1x = std::stof(argv[4]);
-  double pos1y = std::stof(argv[5]);
-  double pos2x = std::stof(argv[6]);
-  double pos2y = std::stof(argv[7]);
+  long double pos1x = std::stof(argv[4]);
+  long double pos1y = std::stof(argv[5]);
+  long double pos2x = std::stof(argv[6]);
+  long double pos2y = std::stof(argv[7]);
   uint32_t width1 = std::stol(argv[8]);
   uint32_t width2 = std::stol(argv[9]);
-  double vel1 = std::stof(argv[10]);
-  double vel2 = std::stof(argv[11]);
+  long double vel1 = std::stof(argv[10]);
+  long double vel2 = std::stof(argv[11]);
 
   // std::cout << "Timestep: " << timestep << std::endl;
   // std::cout << "Mass1: " << mass1 << std::endl;
@@ -122,6 +126,9 @@ int main(int argc, char *argv[]) {
   auto start = std::chrono::high_resolution_clock::now();
   uint32_t collisions = computation(obj1, obj2, timestep);
   auto end = std::chrono::high_resolution_clock::now();
+
+  // auto computation =
+  //     elasticCollisionSolver(1, -0.01012, 1000000000000, -0.000001);
 
   // std::cout << collisions << std::endl;
   // std::cout << obj1.position.x << std::endl;

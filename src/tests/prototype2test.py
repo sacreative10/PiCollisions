@@ -14,7 +14,7 @@ from time import perf_counter
 pygletHandle = PygletOverride("Prototype 2", Vec2(800, 600))
 
 
-digits = 7
+digits = 6
 timestep = 10 ** (digits - 1)
 obj1 = Object(1, 0, Vec2(50, 200), 10 * int(mass_factor(1)))
 obj2 = Object(
