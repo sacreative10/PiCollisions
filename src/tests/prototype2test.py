@@ -79,9 +79,22 @@ def customDraw():
     global collisionCount
     # check for collisions and update velocities
     start = perf_counter()
+    print(
+        str(timestep),
+        str(obj1.mass),
+        str(obj2.mass),
+        str(obj1.position.x),
+        str(obj1.position.y),
+        str(obj2.position.x),
+        str(obj2.position.y),
+        str(obj1.width),
+        str(obj2.width),
+        str(format(obj1.velocity, ".8f")),
+        str(format(obj2.velocity, ".8f")),
+    )
     result = subprocess.run(
         [
-            f"./a.out",
+            f"cpp/a.out",
             str(timestep),
             str(obj1.mass),
             str(obj2.mass),
@@ -99,8 +112,19 @@ def customDraw():
     )
 
     print(result.stderr)
+    # print(result.stdout)
 
-    collisionCount += int(result.stdout)
+    # split the output using \n
+    stdout = result.stdout.split("\n")
+    collisionCount = int(stdout[0])
+    obj1.position.x = float(stdout[1])
+    obj2.position.x = float(stdout[2])
+    obj1.velocity = float(stdout[3])
+    test: float = float(stdout[4])
+    print(test)
+    obj2.velocity = test
+    print(obj2.velocity)
+
     end = perf_counter()
     print(f"Time taken: {end - start} seconds")
 
